@@ -35,41 +35,43 @@
     </div>
     </div>
     <script>
-        const card = document.querySelector('.card');
-        let isDragging = false;
-        let lastX = 0;
-        let rotateY = 0;
-
-        card.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            lastX = e.clientX;
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-            const deltaX = e.clientX - lastX;
-            rotateY += deltaX * 0.5;
-            card.style.transform = `rotateY(${rotateY}deg)`;
-            lastX = e.clientX;
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-        });
-
-        // 手機觸控
-        card.addEventListener('touchstart', (e) => {
-            lastX = e.touches[0].clientX;
-        });
-
-        card.addEventListener('touchmove', (e) => {
-            const currentX = e.touches[0].clientX;
-            const deltaX = currentX - lastX;
-            rotateY += deltaX * 0.5;
-            card.style.transform = `rotateY(${rotateY}deg)`;
-            lastX = currentX;
-        });
+      const card = document.querySelector('.card');
+      let isDragging = false;
+      let startX = 0;
+      let rotateY = 0;
+    
+      // 滑鼠操作（桌機）
+      card.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+      });
+    
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - startX;
+        rotateY += deltaX * 0.5;
+        card.style.transform = `rotateY(${rotateY}deg)`;
+        startX = e.clientX;
+      });
+    
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+    
+      // 手機操作（觸控）
+      card.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+      });
+    
+      card.addEventListener('touchmove', (e) => {
+        e.preventDefault(); 
+        const currentX = e.touches[0].clientX;
+        const deltaX = currentX - startX;
+        rotateY += deltaX * 0.5;
+        card.style.transform = `rotateY(${rotateY}deg)`;
+        startX = currentX;
+      }, { passive: false });
     </script>
+
 </body>
 </html>
