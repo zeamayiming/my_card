@@ -1,77 +1,117 @@
 <!DOCTYPE html>
 <html lang="zh-chant-tw">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>玉米的名片🌽</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="box">
-    <div class="card">
-        <div class="face front">
-            <div class="left">
-                <img src="./author.jpg" alt="照片" class="author">
-                <h3 class="name">🌽玉米先森🌽</h3>
-        </div>
-            <div class="right">
-                <ul class="self">
-                <li>姓名：鄭毅銘</li>
-                <li>岡山高中 113級畢業生</li>
-                <li>中正大學 資訊工程系大一生</li>
-                <li>前端新手 小菜菜</li>
-                </ul>
-                <img src="./zea_mays.050912_qr.png" alt="ig" class="icon">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>名片</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="box">
+        <div class="card">
+            <div class="face front">
+                <div class="left">
+                    <img src="./author.jpg" alt="照片" class="author">
+                    <h3 class="name">🌽玉米先森🌽</h3>
+            </div>
+                <div class="right">
+                    <ul class="self">
+                    <li>姓名：鄭毅銘</li>
+                    <li>岡山高中 113級畢業生</li>
+                    <li>中正大學 資訊工程系大一生</li>
+                    <li>前端新手 小菜菜</li>
+                    </ul>
+                    <img src="./zea_mays.050912_qr.png" alt="ig" class="icon">
+                </div>
+            </div>
+            <div class="face back">
+                <div class="back-content">
+                    <h3>聯絡資訊</h3>
+                    <p>Email：zeamays0912@alum.ccu.edu.tw</p>
+                    <p>IG：zea_mays.050912</p>
+                    <p>🌽 感謝你翻面 🌽</p>
+                </div>
             </div>
         </div>
-        <div class="face back">
-            <div class="back-content">
-                <h3>聯絡資訊</h3>
-                <p>Email：zeamays0912@alum.ccu.edu.tw</p>
-                <p>IG：zea_mays.050912</p>
-                <p>🌽 感謝你翻面 🌽</p>
-            </div>
         </div>
-    </div>
-    </div>
-    <script>
-      const card = document.querySelector('.card');
-      let isDragging = false;
-      let startX = 0;
-      let rotateY = 0;
-    
-      // 滑鼠操作（桌機）
-      card.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startX = e.clientX;
-      });
-    
-      document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        const deltaX = e.clientX - startX;
-        rotateY += deltaX * 0.5;
-        card.style.transform = `rotateY(${rotateY}deg)`;
-        startX = e.clientX;
-      });
-    
-      document.addEventListener('mouseup', () => {
-        isDragging = false;
-      });
-    
-      // 手機操作（觸控）
-      card.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-      });
-    
-      card.addEventListener('touchmove', (e) => {
-        e.preventDefault(); 
-        const currentX = e.touches[0].clientX;
-        const deltaX = currentX - startX;
-        rotateY += deltaX * 0.5;
-        card.style.transform = `rotateY(${rotateY}deg)`;
-        startX = currentX;
-      }, { passive: false });
-    </script>
+        <script>
+            const card = document.querySelector('.card');
+            let isDragging = false;
+            let startX = 0;
+            let rotateY = 0;
+            let velocity = 0;
+            let animationFrameId = null;
+            let lastTime = 0;
 
-</body>
+            // 桌機滑鼠操作
+            card.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                velocity = 0;
+                cancelAnimationFrame(animationFrameId);
+                lastTime = Date.now();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const now = Date.now();
+                const deltaX = e.clientX - startX;
+                const dt = now - lastTime;
+                velocity = deltaX / dt; // 單位：像素/毫秒
+                rotateY += deltaX;
+                card.style.transform = `rotateY(${rotateY}deg)`;
+                startX = e.clientX;
+                lastTime = now;
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                applyInertia();
+            });
+
+            // 手機觸控操作
+            card.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                velocity = 0;
+                cancelAnimationFrame(animationFrameId);
+                lastTime = Date.now();
+            });
+
+            card.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const now = Date.now();
+                const currentX = e.touches[0].clientX;
+                const deltaX = currentX - startX;
+                const dt = now - lastTime;
+                velocity = deltaX / dt;
+                rotateY += deltaX;
+                card.style.transform = `rotateY(${rotateY}deg)`;
+                startX = currentX;
+                lastTime = now;
+            }, { passive: false });
+
+            card.addEventListener('touchend', () => {
+                applyInertia();
+            });
+
+            // 慣性動畫（速度漸減）
+            function applyInertia() {
+                const friction = 0.95; // 慣性減速（越小越快停）
+                const threshold = 0.01; // 最小速度（接近0就停）
+
+                function animate() {
+                rotateY += velocity * 16; // 模擬每 16ms 一幀
+                card.style.transform = `rotateY(${rotateY}deg)`;
+                velocity *= friction;
+
+                if (Math.abs(velocity) > threshold) {
+                    animationFrameId = requestAnimationFrame(animate);
+                }
+                }
+                
+                animationFrameId = requestAnimationFrame(animate);
+            }
+        </script>
+    </body>
 </html>
