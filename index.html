@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-chant-tw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>名片</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="box">
+    <div class="card">
+        <div class="face front">
+            <div class="left">
+                <img src="./author.jpg" alt="照片" class="author">
+                <h3 class="name">🌽玉米先森🌽</h3>
+        </div>
+            <div class="right">
+                <ul class="self">
+                <li>姓名：鄭毅銘</li>
+                <li>岡山高中 113級畢業生</li>
+                <li>中正大學 資訊工程系大一生</li>
+                <li>前端新手 小菜菜</li>
+                </ul>
+                <img src="./zea_mays.050912_qr.png" alt="ig" class="icon">
+            </div>
+        </div>
+        <div class="face back">
+            <div class="back-content">
+                <h3>聯絡資訊</h3>
+                <p>Email：zeamays0912@alum.ccu.edu.tw</p>
+                <p>IG：zea_mays.050912</p>
+                <p>🌽 感謝你翻面 🌽</p>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script>
+        const card = document.querySelector('.card');
+        let isDragging = false;
+        let lastX = 0;
+        let rotateY = 0;
+
+        card.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastX = e.clientX;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+            const deltaX = e.clientX - lastX;
+            rotateY += deltaX * 0.5;
+            card.style.transform = `rotateY(${rotateY}deg)`;
+            lastX = e.clientX;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // 手機觸控
+        card.addEventListener('touchstart', (e) => {
+            lastX = e.touches[0].clientX;
+        });
+
+        card.addEventListener('touchmove', (e) => {
+            const currentX = e.touches[0].clientX;
+            const deltaX = currentX - lastX;
+            rotateY += deltaX * 0.5;
+            card.style.transform = `rotateY(${rotateY}deg)`;
+            lastX = currentX;
+        });
+    </script>
+</body>
+</html>
